@@ -18,13 +18,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useThemeContext } from "../context/ThemeContext";
+import { Link } from "react-router-dom";
 
 interface Props {
   window?: () => Window;
 }
 
 const drawerWidth = 240;
-const navItems = ["Home", "ExchangeRates(Live)"];
+
+const navItems = [
+  { label: "Home", path: "/" },
+  { label: "ExchangeRates(Live)", path: "/exchange" },
+];
 
 export default function DrawerAppBar({ window }: Props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -42,9 +47,13 @@ export default function DrawerAppBar({ window }: Props) {
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: "center" }}>
-              <ListItemText primary={item} />
+          <ListItem key={item.label} disablePadding>
+            <ListItemButton
+              component={Link}
+              to={item.path}
+              sx={{ textAlign: "center" }}
+            >
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -75,22 +84,32 @@ export default function DrawerAppBar({ window }: Props) {
             component="div"
             sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
           >
-            MUI
+            Loan Calculator
           </Typography>
 
-          <Box sx={{ display: { xs: "none", sm: "block" } }}>
+          <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: "#fff", mx: 2 }}>
-                {item}
+              <Button
+                key={item.label}
+                component={Link}
+                to={item.path}
+                sx={{
+                  color: "#fff",
+                  "&:hover": {
+                    color: "rgba(255,255,255,0.5)",
+                  },
+                }}
+              >
+                {item.label}
               </Button>
             ))}
+            <IconButton onClick={toggleTheme} color="inherit">
+              {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
           </Box>
-
-          <IconButton onClick={toggleTheme} color="inherit">
-            {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
-          </IconButton>
         </Toolbar>
       </AppBar>
+
       <nav>
         <Drawer
           container={container}
