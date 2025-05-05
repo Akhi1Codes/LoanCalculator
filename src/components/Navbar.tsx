@@ -17,18 +17,18 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
+import { useThemeContext } from "../context/ThemeContext";
 
 interface Props {
   window?: () => Window;
-  toggleTheme: () => void;
-  mode: "light" | "dark";
 }
 
 const drawerWidth = 240;
 const navItems = ["Home", "ExchangeRates(Live)"];
 
-export default function DrawerAppBar({ window, toggleTheme, mode }: Props) {
+export default function DrawerAppBar({ window }: Props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const { mode, toggleTheme } = useThemeContext();
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -86,7 +86,7 @@ export default function DrawerAppBar({ window, toggleTheme, mode }: Props) {
             ))}
           </Box>
 
-          <IconButton sx={{ ml: 1 }} onClick={toggleTheme} color="inherit">
+          <IconButton onClick={toggleTheme} color="inherit">
             {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
           </IconButton>
         </Toolbar>
