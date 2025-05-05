@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import {
   Box,
   Container,
@@ -13,31 +12,13 @@ import {
   TableRow,
   Paper,
   TextField,
+  Alert,
 } from "@mui/material";
-
-const API_KEY = import.meta.env.VITE_API_KEY; // Replace with your actual API key
-const BASE_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/`;
+import { useExchangeRates } from "../hooks/useExchangeRates";
 
 export default function ExchangeRates() {
   const [baseCurrency, setBaseCurrency] = useState("USD");
-  const [rates, setRates] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-
-  const fetchRates = async (currency: string) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${BASE_URL}${currency}`);
-      setRates(response.data.conversion_rates);
-    } catch (error) {
-      console.error("Failed to fetch exchange rates:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRates(baseCurrency);
-  }, [baseCurrency]);
+  const { rates, loading, error } = useExchangeRates(baseCurrency);
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -58,6 +39,8 @@ export default function ExchangeRates() {
         <Box display="flex" justifyContent="center" mt={4}>
           <CircularProgress />
         </Box>
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
       ) : (
         <TableContainer component={Paper}>
           <Table>
