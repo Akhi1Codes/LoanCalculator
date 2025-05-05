@@ -61,7 +61,16 @@ export default function Home() {
         width: 1,
       }}
     >
-      <Box sx={{ width: 1 / 2 }}>
+      <Box
+        sx={{
+          width: {
+            xs: "100%",
+            sm: "75%",
+            md: "50%",
+            lg: "33.33%",
+          },
+        }}
+      >
         <Typography variant="h4" gutterBottom textAlign="center">
           Loan Calculator
         </Typography>
