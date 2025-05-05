@@ -15,7 +15,7 @@ import {
   TextField,
 } from "@mui/material";
 
-const API_KEY = "6ac2dea686c167ee42e7850a"; // Replace with your actual API key
+const API_KEY = import.meta.env.VITE_API_KEY; // Replace with your actual API key
 const BASE_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/`;
 
 export default function ExchangeRates() {
