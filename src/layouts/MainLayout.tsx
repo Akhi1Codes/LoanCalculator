@@ -6,7 +6,7 @@ export default function MainLayout() {
   return (
     <>
       <Navbar />
-      <main>
+      <main style={{ width: "100vw" }}>
         <Outlet />
       </main>
     </>
