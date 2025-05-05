@@ -1,3 +1,4 @@
+// hooks/calculateLoan.ts
 export interface AmortizationEntry {
   month: number;
   principal: number;
@@ -5,37 +6,33 @@ export interface AmortizationEntry {
   balance: number;
 }
 
-export function useLoanCalculator() {
-  const calculateLoan = (
-    principal: number,
-    annualRate: number,
-    years: number
-  ) => {
-    const monthlyRate = annualRate / 100 / 12;
-    const totalPayments = years * 12;
+export const calculateLoan = (
+  principal: number,
+  rate: number,
+  years: number
+): { monthlyPayment: number; schedule: AmortizationEntry[] } => {
+  const monthlyRate = rate / 100 / 12;
+  const months = years * 12;
 
-    const monthlyPayment =
-      (principal * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) /
-      (Math.pow(1 + monthlyRate, totalPayments) - 1);
+  const monthlyPayment =
+    (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) /
+    (Math.pow(1 + monthlyRate, months) - 1);
 
-    const amortizationSchedule: AmortizationEntry[] = [];
-    let balance = principal;
+  const schedule: AmortizationEntry[] = [];
+  let balance = principal;
 
-    for (let month = 1; month <= totalPayments; month++) {
-      const interest = balance * monthlyRate;
-      const principalPayment = monthlyPayment - interest;
-      balance -= principalPayment;
+  for (let month = 1; month <= months; month++) {
+    const interest = balance * monthlyRate;
+    const principalPayment = monthlyPayment - interest;
+    balance -= principalPayment;
 
-      amortizationSchedule.push({
-        month,
-        principal: principalPayment,
-        interest,
-        balance: balance > 0 ? balance : 0,
-      });
-    }
+    schedule.push({
+      month,
+      principal: principalPayment,
+      interest,
+      balance: balance > 0 ? balance : 0,
+    });
+  }
 
-    return { monthlyPayment, amortizationSchedule };
-  };
-
-  return { calculateLoan };
-}
+  return { monthlyPayment, schedule };
+};

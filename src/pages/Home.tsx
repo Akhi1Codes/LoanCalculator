@@ -1,55 +1,67 @@
-import { useState } from "react";
+// Home.tsx
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  MenuItem,
+  Select,
   TextField,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
 } from "@mui/material";
-import {
-  useLoanCalculator,
-  type AmortizationEntry,
-} from "../hooks/useLoanCalculator";
+import { calculateLoan } from "../hooks/useLoanCalculator";
+
+const currencySymbols: Record<string, string> = {
+  USD: "$",
+  EUR: "€",
+  GBP: "£",
+  INR: "₹",
+  JPY: "¥",
+  AUD: "A$",
+  CAD: "C$",
+};
+
+const supportedCurrencies = Object.keys(currencySymbols);
 
 export default function Home() {
   const [loanAmount, setLoanAmount] = useState("");
   const [interestRate, setInterestRate] = useState("");
   const [term, setTerm] = useState("");
-  const [result, setResult] = useState<number | null>(null);
-  const [schedule, setSchedule] = useState<AmortizationEntry[] | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [exchangeRates, setExchangeRates] = useState<Record<string, number>>(
+    {}
+  );
+  const [showResults, setShowResults] = useState(false);
 
-  const { calculateLoan } = useLoanCalculator();
+  const { schedule, monthlyPayment } = calculateLoan(
+    parseFloat(loanAmount),
+    parseFloat(interestRate),
+    parseInt(term)
+  );
+
+  useEffect(() => {
+    fetch(`https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest/USD`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.conversion_rates) {
+          setExchangeRates(data.conversion_rates);
+        }
+      });
+  }, []);
 
   const handleCalculate = () => {
-    const principal = parseFloat(loanAmount);
-    const rate = parseFloat(interestRate);
-    const years = parseInt(term);
-
-    if (!principal || !rate || !years) return;
-
-    const { monthlyPayment, amortizationSchedule } = calculateLoan(
-      principal,
-      rate,
-      years
-    );
-
-    setResult(monthlyPayment);
-    setSchedule(amortizationSchedule);
+    if (!loanAmount || !interestRate || !term) return;
+    setShowResults(true);
   };
 
   const handleReset = () => {
     setLoanAmount("");
     setInterestRate("");
     setTerm("");
-    setResult(null);
-    setSchedule(null);
+    setShowResults(false);
   };
+
+  const conversionRate = exchangeRates[selectedCurrency] || 1;
+  const currencySymbol = currencySymbols[selectedCurrency] || "$";
 
   return (
     <Box
@@ -59,108 +71,106 @@ export default function Home() {
         justifyContent: "center",
         px: 2,
         width: 1,
+        mt: 8,
       }}
     >
-      <Box
-        sx={{
-          width: {
-            xs: "100%",
-            sm: "75%",
-            md: "50%",
-            lg: "33.33%",
-          },
-        }}
-      >
+      <Box sx={{ width: { xs: 1, sm: 1 / 2, md: 1 / 3 } }}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Loan Calculator
         </Typography>
 
-        <Box
-          component="form"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 3,
-            width: "100%",
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Loan Amount"
-            variant="outlined"
-            fullWidth
             type="number"
             value={loanAmount}
             onChange={(e) => setLoanAmount(e.target.value)}
+            fullWidth
           />
           <TextField
             label="Interest Rate (%)"
-            variant="outlined"
-            fullWidth
             type="number"
             value={interestRate}
             onChange={(e) => setInterestRate(e.target.value)}
+            fullWidth
           />
           <TextField
             label="Term (Years)"
-            variant="outlined"
-            fullWidth
             type="number"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
+            fullWidth
           />
 
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button variant="contained" onClick={handleCalculate}>
-              Calculate
-            </Button>
+          <Button variant="contained" onClick={handleCalculate}>
+            Calculate
+          </Button>
 
-            {result !== null && (
+          {showResults && (
+            <>
+              <Box display="flex" alignItems="center" gap={2}>
+                <Typography>Select Currency:</Typography>
+                <Select
+                  value={selectedCurrency}
+                  onChange={(e) => setSelectedCurrency(e.target.value)}
+                >
+                  {supportedCurrencies.map((cur) => (
+                    <MenuItem key={cur} value={cur}>
+                      {cur}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Box>
+
+              <Typography variant="h6" textAlign="center">
+                Monthly Payment: {currencySymbol}
+                {(monthlyPayment * conversionRate).toFixed(2)}
+              </Typography>
+
+              <Box mt={3}>
+                <Typography variant="h6">Amortization Schedule</Typography>
+                <Box component="table" sx={{ width: "100%", mt: 1 }}>
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Principal</th>
+                      <th>Interest</th>
+                      <th>Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {schedule.map((entry) => (
+                      <tr key={entry.month}>
+                        <td>{entry.month}</td>
+                        <td>
+                          {currencySymbol}
+                          {(entry.principal * conversionRate).toFixed(2)}
+                        </td>
+                        <td>
+                          {currencySymbol}
+                          {(entry.interest * conversionRate).toFixed(2)}
+                        </td>
+                        <td>
+                          {currencySymbol}
+                          {(entry.balance * conversionRate).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Box>
+              </Box>
+
               <Button
                 variant="outlined"
                 color="secondary"
                 onClick={handleReset}
+                sx={{ mt: 2 }}
               >
                 Reset
               </Button>
-            )}
-          </Box>
-
-          {result !== null && (
-            <Typography variant="h6" textAlign="center" mt={2}>
-              Monthly Payment: ${result.toFixed(2)}
-            </Typography>
+            </>
           )}
         </Box>
-
-        {schedule && (
-          <Box mt={4}>
-            <Typography variant="h6" gutterBottom>
-              Amortization Schedule
-            </Typography>
-            <TableContainer component={Paper}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Month</TableCell>
-                    <TableCell>Principal</TableCell>
-                    <TableCell>Interest</TableCell>
-                    <TableCell>Balance</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {schedule.map((entry) => (
-                    <TableRow key={entry.month}>
-                      <TableCell>{entry.month}</TableCell>
-                      <TableCell>${entry.principal.toFixed(2)}</TableCell>
-                      <TableCell>${entry.interest.toFixed(2)}</TableCell>
-                      <TableCell>${entry.balance.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        )}
       </Box>
     </Box>
   );
