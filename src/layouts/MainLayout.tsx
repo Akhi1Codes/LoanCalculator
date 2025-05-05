@@ -2,15 +2,10 @@
 import Navbar from "../components/Navbar";
 import { Outlet } from "react-router-dom";
 
-interface Props {
-  toggleTheme: () => void;
-  mode: "light" | "dark";
-}
-
-export default function MainLayout({ toggleTheme, mode }: Props) {
+export default function MainLayout() {
   return (
     <>
-      <Navbar toggleTheme={toggleTheme} mode={mode} />
+      <Navbar />
       <main style={{ paddingTop: 64 }}>
         <Outlet />
       </main>
