@@ -10,7 +10,8 @@ export default function AppRoutes() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route index element={<Home />} />
-          <Route path="/exchangerate" element={<ExchangeRates />} />
+          <Route path="exchangerate" element={<ExchangeRates />} />{" "}
+          {/* Remove the leading / */}
           <Route path="*" element={<ErrorPage />} />
         </Route>
       </Routes>
