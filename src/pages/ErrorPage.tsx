@@ -1,4 +1,3 @@
-// src/pages/ErrorPage.tsx
 import type { FC } from "react";
 import { Button, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -32,7 +31,7 @@ const ErrorPage: FC<ErrorPageProps> = ({
       <Typography variant="h4" gutterBottom>
         {code} - {message}
       </Typography>
-      <Typography variant="body1" paragraph>
+      <Typography variant="body1">
         The page you're looking for doesn't exist or has been moved.
       </Typography>
       <Button

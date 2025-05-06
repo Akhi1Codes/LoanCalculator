@@ -1,4 +1,3 @@
-// layouts/MainLayout.tsx
 import Navbar from "../components/Navbar";
 import { Outlet } from "react-router-dom";
 

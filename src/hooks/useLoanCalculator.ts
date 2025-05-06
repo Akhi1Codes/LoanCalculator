@@ -1,4 +1,3 @@
-// hooks/calculateLoan.ts
 export interface AmortizationEntry {
   month: number;
   principal: number;
