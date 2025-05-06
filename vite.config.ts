@@ -1,8 +1,7 @@
-// vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "LoanCalculator", // 👈 Important!
+  base: "/LoanCalculator/",
   plugins: [react()],
 });
