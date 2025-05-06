@@ -6,7 +6,7 @@ import ErrorPage from "../pages/ErrorPage";
 
 export default function AppRoutes() {
   return (
-    <Routes basename="/LoanCalculator">
+    <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="/exchangerate" element={<ExchangeRates />} />
